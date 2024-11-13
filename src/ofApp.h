@@ -9,44 +9,48 @@ public:
 	ofVec2f Vel;
 	ofColor color;
 	float radius;
-	Disc(ofVec2f pos, ofVec2f vel, float rad, ofColor col) :Pos(pos), Vel(vel), radius(rad), color(col) {};
+	float mass;
+	Disc(ofVec2f pos, ofVec2f vel, float rad, float mass, ofColor col) :Pos(pos), Vel(vel), radius(rad), color(col), mass(mass) {};
 
-	void move()
-	{
-		Pos += Vel;
-	}
-
-	void check(int height, int width)
-	{
-		if (Pos.x - radius < 0 || Pos.x - radius > width)
-		{
-			Vel.x *= -1;
-		}
-		if (Pos.y - radius < 0 || Pos.y - radius > height)
-		{
-			Vel.y *= -1;
-		}
-	}
-	void force(ofVec2f center, float strength)
+	void move(ofVec2f center, float dt, float attractionStrength)
 	{
 		ofVec2f direction = center - Pos;
-		float distance = direction.length() + 1e-5; // adding small value to avoid dividing by zero
-		direction.normalize();
+		float r = direction.length();
+		if (r > 10.0f)
+		{
+			direction.normalize();
+			float F = attractionStrength / (r * r);
+			ofVec2f force = F * direction;
 
-		float forceMagnitude = strength / (distance * distance);
-		ofVec2f force = direction * forceMagnitude;
+			ofVec2f acceleration = force / mass;
+			Vel += acceleration * dt;
 
-		Vel += force;
+
+		}
+
+		Pos += Vel * dt;
+
+		if (Pos.x < radius) {
+			Pos.x = radius;
+			Vel.x *= -1;
+		}
+		if (Pos.x > ofGetWidth() - radius) {
+			Pos.x = ofGetWidth() - radius;
+			Vel.x *= -1;
+		}
+		if (Pos.y < radius) {
+			Pos.y = radius;
+			Vel.y *= -1;
+		}
+		if (Pos.y > ofGetHeight() - radius) {
+			Pos.y = ofGetHeight() - radius;
+			Vel.y *= -1;
+		}
 	}
 };
 class ofApp : public ofBaseApp{
 
 	public:
-		int xPos = 0;
-		int xVel = 2;
-		int yPos = 0;
-		int yVel = 2;
-
 		void setup();
 		void update();
 		void draw();
@@ -66,7 +70,6 @@ class ofApp : public ofBaseApp{
 private:
 	std::vector <Disc> discs;
 	int N = 1000;
-	float discRad = 5.0;
-	float strength = 500.0;
 	ofVec2f center;
+
 };

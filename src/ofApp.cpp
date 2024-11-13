@@ -4,25 +4,29 @@
 	
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofSetFrameRate(60);
 	ofBackground(0);
 	center.set(ofGetWidth() / 2, ofGetHeight() / 2);
 
 	for (int i = 0;i < N;i++)
 	{
+		float discRad = ofRandom(1, 3);
+		float mass = ofRandom(1, 5);
 		ofVec2f pos(ofRandom(discRad, ofGetWidth() - discRad), 
 			ofRandom(discRad, ofGetHeight() - discRad));
-		ofVec2f vel(ofRandom(-2, 2), ofRandom(-2, 2));
+		ofVec2f vel(ofRandom(-5, 5), ofRandom(-5, 5));
 		ofColor col(ofRandom(255), ofRandom(255), ofRandom(255));
-		discs.emplace_back(pos, vel, discRad, col);
+		discs.emplace_back(pos, vel, discRad, mass, col);
+
+
 	}
 }
 //--------------------------------------------------------------
 void ofApp::update(){
+	float dt = 1.0 / 60.0;
 	for (auto& disc : discs)
 	{
-		disc.force(center,strength);
-		disc.move();
-		disc.check(ofGetWidth(),ofGetHeight());
+		disc.move(center,dt,20000.0);
 	}
 	
 }
