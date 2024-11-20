@@ -16,16 +16,15 @@ public:
 	{
 		ofVec2f direction = center - Pos;
 		float r = direction.length();
-		if (r > 10.0f)
+		ofVec2f D = (-6) * PI * Vel * viscosity * radius;
+		if (r > 50.0f)
 		{
 			direction.normalize();
 			float F = attractionStrength / (r * r);
 			ofVec2f force = F * direction;
 
-			ofVec2f acceleration = force / mass;
+			ofVec2f acceleration = (force + D) / mass;
 			Vel += acceleration * dt;
-
-
 		}
 
 		Pos += Vel * dt;
@@ -47,6 +46,8 @@ public:
 			Vel.y *= -1;
 		}
 	}
+private:
+	float viscosity = 0.0001;
 };
 class ofApp : public ofBaseApp{
 
@@ -71,5 +72,4 @@ private:
 	std::vector <Disc> discs;
 	int N = 1000;
 	ofVec2f center;
-
 };
