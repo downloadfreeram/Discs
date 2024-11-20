@@ -10,13 +10,14 @@ public:
 	ofColor color;
 	float radius;
 	float mass;
-	Disc(ofVec2f pos, ofVec2f vel, float rad, float mass, ofColor col) :Pos(pos), Vel(vel), radius(rad), color(col), mass(mass) {};
+	float viscosity;
+	Disc(ofVec2f pos, ofVec2f vel, float rad, float mass, ofColor col, float vis) :Pos(pos), Vel(vel), radius(rad), color(col), mass(mass), viscosity(vis) {};
 
 	void move(ofVec2f center, float dt, float attractionStrength)
 	{
 		ofVec2f direction = center - Pos;
 		float r = direction.length();
-		ofVec2f D = (-6) * PI * Vel * viscosity * radius;
+		ofVec2f D = (-6) * PI * Vel * viscosity * radius;	// calculating the Stokes formula for small Reynold numbers
 		if (r > 50.0f)
 		{
 			direction.normalize();
@@ -46,8 +47,6 @@ public:
 			Vel.y *= -1;
 		}
 	}
-private:
-	float viscosity = 0.0001;
 };
 class ofApp : public ofBaseApp{
 
