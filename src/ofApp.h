@@ -13,40 +13,43 @@ public:
 	float viscosity;
 	Disc(ofVec2f pos, ofVec2f vel, float rad, float mass, ofColor col, float vis) :Pos(pos), Vel(vel), radius(rad), color(col), mass(mass), viscosity(vis) {};
 
-	void move(ofVec2f center, float dt, float attractionStrength)
-	{
-		ofVec2f direction = center - Pos;
-		float r = direction.length();
-		ofVec2f D = (-6) * PI * Vel * viscosity * radius;	// calculating the Stokes formula for small Reynold numbers
-		if (r > 50.0f)
-		{
-			direction.normalize();
-			float F = attractionStrength / (r * r);
-			ofVec2f force = F * direction;
+    void move(const std::vector<ofVec2f>& attractionPoints, float dt, float attractionStrength, float vis) {
+        ofVec2f totalF(0, 0);
 
-			ofVec2f acceleration = (force + D) / mass;
-			Vel += acceleration * dt;
-		}
+        for (const auto& point : attractionPoints) {
+            ofVec2f direction = point - Pos;
+            float r = direction.length();
+            if (r > 50.0f) { 
+                direction.normalize();
+                totalF += (attractionStrength / (r * r)) * direction;
+            }
+        }
 
-		Pos += Vel * dt;
+        ofVec2f D = (-6) * PI * Vel * vis * radius;
 
-		if (Pos.x < radius) {
-			Pos.x = radius;
-			Vel.x *= -1;
-		}
-		if (Pos.x > ofGetWidth() - radius) {
-			Pos.x = ofGetWidth() - radius;
-			Vel.x *= -1;
-		}
-		if (Pos.y < radius) {
-			Pos.y = radius;
-			Vel.y *= -1;
-		}
-		if (Pos.y > ofGetHeight() - radius) {
-			Pos.y = ofGetHeight() - radius;
-			Vel.y *= -1;
-		}
-	}
+        ofVec2f a = (totalF + D) / mass;
+
+        Vel += a * dt;
+        Pos += Vel * dt;
+
+        if (Pos.x < radius) {
+            Pos.x = radius;
+            Vel.x *= -1;
+        }
+        if (Pos.x > ofGetWidth() - radius) {
+            Pos.x = ofGetWidth() - radius;
+            Vel.x *= -1;
+        }
+        if (Pos.y < radius) {
+            Pos.y = radius;
+            Vel.y *= -1;
+        }
+        if (Pos.y > ofGetHeight() - radius) {
+            Pos.y = ofGetHeight() - radius;
+            Vel.y *= -1;
+        }
+    }
+
 };
 class ofApp : public ofBaseApp{
 
@@ -71,4 +74,5 @@ private:
 	std::vector <Disc> discs;
 	int N = 1000;
 	ofVec2f center;
+	std::vector<ofVec2f> attractionPoints;
 };

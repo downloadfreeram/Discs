@@ -1,10 +1,11 @@
 #include "ofApp.h"
 #include <random>
 #include <vector>
-	
+
 float vis = 0.0001;
 //--------------------------------------------------------------
 void ofApp::setup(){
+	std::cout << "Number of discs:" << N << std::endl;
 	ofSetFrameRate(60);
 	ofBackground(0);
 	center.set(ofGetWidth() / 2, ofGetHeight() / 2);
@@ -23,13 +24,15 @@ void ofApp::setup(){
 	}
 }
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
 	float dt = 1.0 / 60.0;
-	for (auto& disc : discs)
-	{
-		disc.move(center,dt,20000.0);
+
+	std::vector<ofVec2f> allAttractionPoints = attractionPoints;
+	allAttractionPoints.push_back(center);
+
+	for (auto& disc : discs) {
+		disc.move(allAttractionPoints, dt, 20000.0,vis);
 	}
-	
 }
 
 //--------------------------------------------------------------
@@ -43,7 +46,12 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	if (key == 'z' || key == 'Z') {
+		if (!attractionPoints.empty()) {
+			attractionPoints.pop_back();
+			std::cout << "Removed last attraction point." << std::endl;
+		}
+	}
 }
 
 //--------------------------------------------------------------
@@ -63,19 +71,43 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-	center.set(x, y);
-	std::cout << "Point changed to X: " << x << " and Y: " << y << std::endl;
-	float distanceFromCenter = ofVec2f(x, y).distance(ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2));
+	if (button == OF_MOUSE_BUTTON_RIGHT) {
+		attractionPoints.emplace_back(x, y);
+		std::cout << "Added attraction point at X: " << x << " Y: " << y << std::endl; 
+		float distanceFromCenter = ofVec2f(x, y).distance(ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2));
 
-	// change viscosity depending on distance from center
-	if (distanceFromCenter <= 50) {
-		vis = 0.0001; 
+		// change viscosity depending on distance from center
+		if (distanceFromCenter <= 50) {
+			vis = 0.0001;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
+		else if (distanceFromCenter <= 150 && distanceFromCenter > 50) {
+			vis = 0.001;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
+		else {
+			vis = 0.01;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
 	}
-	else if(distanceFromCenter <= 150 && distanceFromCenter > 50) {
-		vis = 0.001;
-	}
-	else {
-		vis = 0.01;
+	else if (button == OF_MOUSE_BUTTON_LEFT) {
+		center.set(x, y);
+		std::cout << "Main point changed to X: " << x << " Y: " << y << std::endl;
+		float distanceFromCenter = ofVec2f(x, y).distance(ofVec2f(ofGetWidth() / 2, ofGetHeight() / 2));
+
+		// change viscosity depending on distance from center
+		if (distanceFromCenter <= 50) {
+			vis = 0.0001;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
+		else if (distanceFromCenter <= 150 && distanceFromCenter > 50) {
+			vis = 0.001;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
+		else {
+			vis = 0.01;
+			std::cout << "Viscosity for those coordinates is: " << vis << std::endl;
+		}
 	}
 }
 
